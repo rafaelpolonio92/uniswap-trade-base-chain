@@ -13,7 +13,6 @@ import {
   TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER
 } from '@libs/constants';
 import { fromReadableAmount } from './utils';
-import JSBI from 'jsbi'
 
 dotenv.config();
 
@@ -33,12 +32,6 @@ export enum TransactionState {
   Rejected = 'Rejected',
   Sending = 'Sending',
   Sent = 'Sent',
-}
-
-const { PRIVATE_KEY, RPC_URL } = process.env;
-
-if (!PRIVATE_KEY || !RPC_URL) {
-  throw new Error('Please set your PRIVATE_KEY and RPC_URL in a .env file');
 }
 
 export const mainnetProvider = new ethers.JsonRpcProvider(
