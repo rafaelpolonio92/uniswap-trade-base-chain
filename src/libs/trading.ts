@@ -9,7 +9,7 @@ import JSBI from 'jsbi'
 
 import { mainnetProvider, wallet, getTokenTransferApproval } from "@libs/providers";
 import { CurrentConfig } from "config";
-import { getPoolInfo, getWalletAddress } from "@libs/providers";
+import { getPoolInfo, getWalletAddress, TransactionState } from "@libs/providers";
 import { fromReadableAmount } from "@libs/utils"
 import { getOutputQuote } from "@libs/utils";
 import { SWAP_ROUTER_ADDRESS, MAX_FEE_PER_GAS, MAX_PRIORITY_FEE_PER_GAS } from "@libs/constants";
@@ -34,7 +34,7 @@ const createTrade = async (): Promise<Route<Token, Token>> => {
   return swapRoute;
 }
 
-const executeTrade = async () => {
+export const executeTrade = async () => {
   const tradeRoute = await createTrade();
   const walletAddress = getWalletAddress()
   const amountOut = await getOutputQuote(tradeRoute, mainnetProvider);
@@ -55,7 +55,11 @@ const executeTrade = async () => {
     tradeType: TradeType.EXACT_INPUT,
   })
   
-  await getTokenTransferApproval(CurrentConfig.tokens.in)
+  const tokenApproval = await getTokenTransferApproval(CurrentConfig.tokens.in)
+  if (tokenApproval !== TransactionState.Sent) {
+    return TransactionState.Failed
+  }
+
   const options: SwapOptions = {
     slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
     deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
