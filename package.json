@@ -1,0 +1,24 @@
+{
+  "name": "uniswap-trade-base-chain",
+  "version": "1.0.0",
+  "description": "Working trade using Uniswap on the BASE chain",
+  "main": "index.js",
+  "dependencies": {
+    "@uniswap/sdk": "^3.0.3",
+    "@uniswap/v3-sdk": "^3.11.2",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
