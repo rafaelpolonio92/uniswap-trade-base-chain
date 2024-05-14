@@ -1,9 +1,19 @@
-import { ethers, Provider } from 'ethers';
+import { ethers, Provider, TransactionRequest, BigNumberish } from 'ethers';
 import { computePoolAddress } from '@uniswap/v3-sdk'
+import { 
+  Token,
+} from "@uniswap/sdk-core";
 import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json'
 import * as dotenv from 'dotenv';
 import { CurrentConfig, Environment } from 'config';
-import { POOL_FACTORY_CONTRACT_ADDRESS } from '@libs/constants';
+import { 
+  POOL_FACTORY_CONTRACT_ADDRESS, 
+  ERC20_ABI, 
+  SWAP_ROUTER_ADDRESS,
+  TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER
+} from '@libs/constants';
+import { fromReadableAmount } from './utils';
+import JSBI from 'jsbi'
 
 dotenv.config();
 
@@ -15,6 +25,14 @@ interface PoolInfo {
   sqrtPriceX96: ethers.BigNumberish
   liquidity: ethers.BigNumberish
   tick: number
+}
+
+export enum TransactionState {
+  Failed = 'Failed',
+  New = 'New',
+  Rejected = 'Rejected',
+  Sending = 'Sending',
+  Sent = 'Sent',
 }
 
 const { PRIVATE_KEY, RPC_URL } = process.env;
@@ -37,7 +55,7 @@ const createWallet = (): ethers.Wallet => {
 
 export const wallet = createWallet()
 
-const getProvider = (): Provider | null => {
+export const getProvider = (): Provider | null => {
   return wallet.provider
 }
 
@@ -78,5 +96,82 @@ export async function getPoolInfo(): Promise<PoolInfo> {
     liquidity,
     sqrtPriceX96: slot0[0],
     tick: slot0[1],
+  }
+}
+
+export function getWalletAddress(): string | null {
+  return wallet.address
+}
+
+async function sendTransactionViaWallet(
+  transaction: TransactionRequest
+): Promise<TransactionState> {
+  const txRes = await wallet.sendTransaction(transaction)
+
+  let receipt = null
+  const provider = getProvider()
+  if (!provider) {
+    return TransactionState.Failed
+  }
+
+  while (receipt === null) {
+    try {
+      receipt = await provider.getTransactionReceipt(txRes.hash)
+
+      if (receipt === null) {
+        continue
+      }
+    } catch (e) {
+      console.log(`Receipt error:`, e)
+      break
+    }
+  }
+
+  // Transaction was successful if status === 1
+  if (receipt) {
+    return TransactionState.Sent
+  } else {
+    return TransactionState.Failed
+  }
+}
+
+export async function sendTransaction(
+  transaction: TransactionRequest
+): Promise<TransactionState> {
+  return sendTransactionViaWallet(transaction)
+}
+
+export async function getTokenTransferApproval(
+  token: Token
+): Promise<TransactionState> {
+  const provider = getProvider()
+  const address = getWalletAddress()
+  if (!provider || !address) {
+    console.log('No Provider Found')
+    return TransactionState.Failed
+  }
+
+  try {
+    const tokenContract = new ethers.Contract(
+      token.address,
+      ERC20_ABI,
+      provider
+    )
+
+    const transaction = await tokenContract.populateTransaction.send(
+      SWAP_ROUTER_ADDRESS,
+      fromReadableAmount(
+        TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
+        token.decimals
+      ).toString()
+    )
+
+    return sendTransaction({
+      ...transaction,
+      from: address,
+    })
+  } catch (e) {
+    console.error(e)
+    return TransactionState.Failed
   }
 }

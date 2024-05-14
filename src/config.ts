@@ -8,7 +8,7 @@ export enum Environment {
   WALLET_EXTENSION,
 }
 
-export interface ExampleConfig {
+export interface Config {
   env: Environment
   rpc: {
     local: string
@@ -27,7 +27,7 @@ export interface ExampleConfig {
 }
 
 
-export const CurrentConfig: ExampleConfig = {
+export const CurrentConfig: Config = {
   env: Environment.LOCAL,
   rpc: {
     local: 'http://localhost:8545',
