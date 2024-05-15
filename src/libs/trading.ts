@@ -6,8 +6,8 @@ import {
 } from "@uniswap/sdk-core";
 import { Pool, Trade, SwapOptions, Route, SwapRouter } from "@uniswap/v3-sdk";
 import JSBI from 'jsbi'
-
-import { mainnetProvider, wallet, getTokenTransferApproval } from "@libs/providers";
+import { ethers } from "ethers";
+import { mainnetProvider, getTokenTransferApproval, sendTransaction } from "@libs/providers";
 import { CurrentConfig } from "config";
 import { getPoolInfo, getWalletAddress, TransactionState } from "@libs/providers";
 import { fromReadableAmount } from "@libs/utils"
@@ -74,8 +74,8 @@ export const executeTrade = async () => {
     from: walletAddress,
     maxFeePerGas: MAX_FEE_PER_GAS,
     maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
-  }
+  } as ethers.providers.TransactionRequest
   
-  const res = await wallet.sendTransaction(tx)
+  const res = await sendTransaction(tx)
   return res;
 }

@@ -31,12 +31,12 @@ export const CurrentConfig: Config = {
   env: Environment.LOCAL,
   rpc: {
     local: 'http://localhost:8545',
-    mainnet: '',
+    mainnet: 'https://mainnet.infura.io/v3/9b54c88cc9ff4eba9bd56b3629d7b33b',
   },
   wallet: {
-    address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+    address: '0x65142A94Bf51ce79c0b8C0fA71DE923317131238',
     privateKey:
-      '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+      'fa30b988543720cb1724b432dfbd7772dbfe186ffd523462055920d28e93b7b0',
   },
   tokens: {
     in: WETH_TOKEN,

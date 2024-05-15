@@ -1,4 +1,4 @@
-import { executeTrade } from '@libs/trading';
+import { executeTrade } from './libs/trading';
 
 async function main() {
   try {

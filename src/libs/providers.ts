@@ -1,4 +1,4 @@
-import { ethers, Provider, TransactionRequest, BigNumberish } from 'ethers';
+import { ethers } from 'ethers';
 import { computePoolAddress } from '@uniswap/v3-sdk'
 import { 
   Token,
@@ -34,21 +34,18 @@ export enum TransactionState {
   Sent = 'Sent',
 }
 
-export const mainnetProvider = new ethers.JsonRpcProvider(
+export const mainnetProvider = new ethers.providers.JsonRpcProvider(
   CurrentConfig.rpc.mainnet
 )
 
-const createWallet = (): ethers.Wallet => {
+export const createWallet = (): ethers.Wallet => {
   let provider = mainnetProvider
-  if (CurrentConfig.env == Environment.LOCAL) {
-    provider = new ethers.JsonRpcProvider(CurrentConfig.rpc.local)
-  }
   return new ethers.Wallet(CurrentConfig.wallet.privateKey, provider)
 }
 
 export const wallet = createWallet()
 
-export const getProvider = (): Provider | null => {
+export const getProvider = (): ethers.providers.Provider | null => {
   return wallet.provider
 }
 
@@ -57,7 +54,7 @@ export async function getPoolInfo(): Promise<PoolInfo> {
   if (!provider) {
     throw new Error('No provider')
   }
-
+  
   const currentPoolAddress = computePoolAddress({
     factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
     tokenA: CurrentConfig.tokens.in,
@@ -97,7 +94,7 @@ export function getWalletAddress(): string | null {
 }
 
 async function sendTransactionViaWallet(
-  transaction: TransactionRequest
+  transaction: ethers.providers.TransactionRequest
 ): Promise<TransactionState> {
   const txRes = await wallet.sendTransaction(transaction)
 
@@ -129,7 +126,7 @@ async function sendTransactionViaWallet(
 }
 
 export async function sendTransaction(
-  transaction: TransactionRequest
+  transaction: ethers.providers.TransactionRequest
 ): Promise<TransactionState> {
   return sendTransactionViaWallet(transaction)
 }
@@ -150,8 +147,8 @@ export async function getTokenTransferApproval(
       ERC20_ABI,
       provider
     )
-
-    const transaction = await tokenContract.populateTransaction.send(
+    
+    const transaction = await tokenContract.populateTransaction.approve(
       SWAP_ROUTER_ADDRESS,
       fromReadableAmount(
         TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,

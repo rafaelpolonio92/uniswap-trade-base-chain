@@ -1,19 +1,19 @@
-import { BigNumberish, parseUnits } from 'ethers'
+import { BigNumberish } from 'ethers'
 import { SwapQuoter } from '@uniswap/v3-sdk'
 import { CurrencyAmount, TradeType, Token } from '@uniswap/sdk-core'
 import { CurrentConfig } from 'config'
 import { QUOTER_CONTRACT_ADDRESS } from '@libs/constants';
-import { AbiCoder, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { Route } from "@uniswap/v3-sdk";
 
 export const fromReadableAmount = (
   amount: number,
   decimals: number
 ): BigNumberish => {
-  return parseUnits(amount.toString(), decimals)
+  return ethers.utils.parseUnits(amount.toString(), decimals)
 }
 
-export const getOutputQuote = async (swapRoute: Route<Token, Token>, provider: ethers.JsonRpcProvider) => {
+export const getOutputQuote = async (swapRoute: Route<Token, Token>, provider: ethers.providers.JsonRpcProvider) => {
   const { calldata } = SwapQuoter.quoteCallParameters(
     swapRoute,
     CurrencyAmount.fromRawAmount(
@@ -33,5 +33,5 @@ export const getOutputQuote = async (swapRoute: Route<Token, Token>, provider: e
     to: QUOTER_CONTRACT_ADDRESS,
     data: calldata,
   });
-  return new AbiCoder().decode(['uint256'], quoteCallReturnData)
+  return new ethers.utils.AbiCoder().decode(['uint256'], quoteCallReturnData)
 }
