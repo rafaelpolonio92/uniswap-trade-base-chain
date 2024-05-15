@@ -5,7 +5,7 @@ import {
 } from "@uniswap/sdk-core";
 import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json'
 import * as dotenv from 'dotenv';
-import { CurrentConfig, Environment } from 'config';
+import { CurrentConfig } from 'config';
 import { 
   POOL_FACTORY_CONTRACT_ADDRESS, 
   ERC20_ABI, 
@@ -51,6 +51,9 @@ export const getProvider = (): ethers.providers.Provider | null => {
 
 export async function getPoolInfo(): Promise<PoolInfo> {
   const provider = getProvider()
+  console.log({
+    address: wallet.address
+  })
   if (!provider) {
     throw new Error('No provider')
   }

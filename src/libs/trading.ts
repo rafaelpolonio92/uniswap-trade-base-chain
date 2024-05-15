@@ -25,7 +25,7 @@ const createTrade = async (): Promise<Route<Token, Token>> => {
     poolInfo.liquidity.toString(),
     poolInfo.tick
   )
-
+  
   const swapRoute = new Route(
     [pool],
     CurrentConfig.tokens.in,
@@ -59,13 +59,17 @@ export const executeTrade = async () => {
   if (tokenApproval !== TransactionState.Sent) {
     return TransactionState.Failed
   }
-
+  console.log({
+    tokenApproval
+  })
   const options: SwapOptions = {
     slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
     deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
     recipient: walletAddress!,
   }
 
+  console.log([JSON.stringify(uncheckedTrade)])
+  console.log(options)
   const methodParameters = SwapRouter.swapCallParameters([uncheckedTrade], options)
   const tx = {
     data: methodParameters.calldata,
