@@ -1,4 +1,4 @@
-import { BigNumberish } from 'ethers'
+import { BigNumber } from 'ethers'
 import { SwapQuoter } from '@uniswap/v3-sdk'
 import { CurrencyAmount, TradeType, Token } from '@uniswap/sdk-core'
 import { CurrentConfig } from 'config'
@@ -9,7 +9,7 @@ import { Route } from "@uniswap/v3-sdk";
 export const fromReadableAmount = (
   amount: number,
   decimals: number
-): BigNumberish => {
+): BigNumber => {
   return ethers.utils.parseUnits(amount.toString(), decimals)
 }
 

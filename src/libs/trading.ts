@@ -38,7 +38,7 @@ export const executeTrade = async () => {
   const tradeRoute = await createTrade();
   const walletAddress = getWalletAddress()
   const amountOut = await getOutputQuote(tradeRoute, mainnetProvider);
-
+  
   const uncheckedTrade = Trade.createUncheckedTrade({
     route: tradeRoute,
     inputAmount: CurrencyAmount.fromRawAmount(
@@ -56,30 +56,35 @@ export const executeTrade = async () => {
   })
   
   const tokenApproval = await getTokenTransferApproval(CurrentConfig.tokens.in)
+
   if (tokenApproval !== TransactionState.Sent) {
     return TransactionState.Failed
   }
-  console.log({
-    tokenApproval
-  })
+
   const options: SwapOptions = {
     slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
     deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
     recipient: walletAddress!,
   }
 
-  console.log([JSON.stringify(uncheckedTrade)])
-  console.log(options)
   const methodParameters = SwapRouter.swapCallParameters([uncheckedTrade], options)
+
+  const gasLimit = ethers.BigNumber.from(100000);
+  const maxFeePerGas = ethers.utils.parseUnits('10', 'gwei');
+  const maxPriorityFeePerGas = ethers.utils.parseUnits('2', 'gwei');
+
   const tx = {
     data: methodParameters.calldata,
     to: SWAP_ROUTER_ADDRESS,
     value: methodParameters.value,
     from: walletAddress,
-    maxFeePerGas: MAX_FEE_PER_GAS,
-    maxPriorityFeePerGas: MAX_PRIORITY_FEE_PER_GAS,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    gasLimit
   } as ethers.providers.TransactionRequest
   
+  // throw new Error('')
   const res = await sendTransaction(tx)
+  console.log(res)
   return res;
 }

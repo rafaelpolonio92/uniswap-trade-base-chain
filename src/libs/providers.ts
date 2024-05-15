@@ -107,20 +107,21 @@ async function sendTransactionViaWallet(
     return TransactionState.Failed
   }
 
-  while (receipt === null) {
-    try {
-      receipt = await provider.getTransactionReceipt(txRes.hash)
+  // while (receipt === null) {
+  //   try {
+  //     receipt = await provider.getTransactionReceipt(txRes.hash)
 
-      if (receipt === null) {
-        continue
-      }
-    } catch (e) {
-      console.log(`Receipt error:`, e)
-      break
-    }
-  }
+  //     if (receipt === null) {
+  //       continue
+  //     }
+  //   } catch (e) {
+  //     console.log(`Receipt error:`, e)
+  //     break
+  //   }
+  // }
 
   // Transaction was successful if status === 1
+  return TransactionState.Sent
   if (receipt) {
     return TransactionState.Sent
   } else {
