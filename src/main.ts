@@ -26,7 +26,9 @@ function handleError(error: any) {
 
 async function main() {
   try {
-    await executeTrade()
+    const trade = await executeTrade()
+    logger.info('Trade executed successfully:', trade)
+    process.exit(0)
   } catch (error) {
     handleError(error)
   }
