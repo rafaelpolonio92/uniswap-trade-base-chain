@@ -10,9 +10,9 @@ import {
   TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
 } from '@libs/constants'
 
+import logger from '../logger'
 import { CurrentConfig } from '../config'
 import { fromReadableAmount } from './utils'
-
 dotenv.config()
 
 interface PoolInfo {
@@ -50,9 +50,8 @@ export const getProvider = (): ethers.providers.Provider | null => {
 
 export async function getPoolInfo(): Promise<PoolInfo> {
   const provider = getProvider()
-  console.log({
-    address: wallet.address,
-  })
+
+  logger.info(`Addres: ${wallet.address}`)
   if (!provider) {
     throw new Error('No provider')
   }
@@ -114,12 +113,11 @@ async function sendTransactionViaWallet(
         continue
       }
     } catch (e) {
-      console.log(`Receipt error:`, e)
+      logger.error(`Receipt error: ${e}`)
       break
     }
   }
 
-  // Transaction was successful if status === 1
   if (receipt) {
     return TransactionState.Sent
   } else {
@@ -139,7 +137,7 @@ export async function getTokenTransferApproval(
   const provider = getProvider()
   const address = getWalletAddress()
   if (!provider || !address) {
-    console.log('No Provider Found')
+    logger.info('No Provider Found')
     return TransactionState.Failed
   }
 
@@ -163,7 +161,7 @@ export async function getTokenTransferApproval(
       from: address,
     })
   } catch (e) {
-    console.error(e)
+    logger.error(e)
     return TransactionState.Failed
   }
 }

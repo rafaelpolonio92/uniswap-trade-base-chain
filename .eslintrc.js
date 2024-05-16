@@ -30,6 +30,7 @@ module.exports = {
         'newlines-between': 'always',
       },
     ],
+    'no-process-exit': 'off',
     'node/no-extraneous-import': 'off',
     'node/no-unsupported-features/es-syntax': 'off', // Disable this rule
     'node/no-missing-import': 'off', // Disable this rule as well if it complains about TypeScript paths
