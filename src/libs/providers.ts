@@ -1,20 +1,19 @@
-import { ethers } from 'ethers';
+import { ethers } from 'ethers'
 import { computePoolAddress } from '@uniswap/v3-sdk'
-import { 
-  Token,
-} from "@uniswap/sdk-core";
+import { Token } from '@uniswap/sdk-core'
 import IUniswapV3PoolABI from '@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json'
-import * as dotenv from 'dotenv';
-import { CurrentConfig } from 'config';
-import { 
-  POOL_FACTORY_CONTRACT_ADDRESS, 
-  ERC20_ABI, 
+import * as dotenv from 'dotenv'
+import {
+  POOL_FACTORY_CONTRACT_ADDRESS,
+  ERC20_ABI,
   SWAP_ROUTER_ADDRESS,
-  TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER
-} from '@libs/constants';
-import { fromReadableAmount } from './utils';
+  TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
+} from '@libs/constants'
 
-dotenv.config();
+import { CurrentConfig } from '../config'
+import { fromReadableAmount } from './utils'
+
+dotenv.config()
 
 interface PoolInfo {
   token0: string
@@ -35,11 +34,11 @@ export enum TransactionState {
 }
 
 export const mainnetProvider = new ethers.providers.JsonRpcProvider(
-  CurrentConfig.rpc.mainnet
+  CurrentConfig.rpc.mainnet,
 )
 
 export const createWallet = (): ethers.Wallet => {
-  let provider = mainnetProvider
+  const provider = mainnetProvider
   return new ethers.Wallet(CurrentConfig.wallet.privateKey, provider)
 }
 
@@ -52,12 +51,12 @@ export const getProvider = (): ethers.providers.Provider | null => {
 export async function getPoolInfo(): Promise<PoolInfo> {
   const provider = getProvider()
   console.log({
-    address: wallet.address
+    address: wallet.address,
   })
   if (!provider) {
     throw new Error('No provider')
   }
-  
+
   const currentPoolAddress = computePoolAddress({
     factoryAddress: POOL_FACTORY_CONTRACT_ADDRESS,
     tokenA: CurrentConfig.tokens.in,
@@ -68,7 +67,7 @@ export async function getPoolInfo(): Promise<PoolInfo> {
   const poolContract = new ethers.Contract(
     currentPoolAddress,
     IUniswapV3PoolABI.abi,
-    provider
+    provider,
   )
 
   const [token0, token1, fee, tickSpacing, liquidity, slot0] =
@@ -97,7 +96,7 @@ export function getWalletAddress(): string | null {
 }
 
 async function sendTransactionViaWallet(
-  transaction: ethers.providers.TransactionRequest
+  transaction: ethers.providers.TransactionRequest,
 ): Promise<TransactionState> {
   const txRes = await wallet.sendTransaction(transaction)
 
@@ -107,21 +106,20 @@ async function sendTransactionViaWallet(
     return TransactionState.Failed
   }
 
-  // while (receipt === null) {
-  //   try {
-  //     receipt = await provider.getTransactionReceipt(txRes.hash)
+  while (receipt === null) {
+    try {
+      receipt = await provider.getTransactionReceipt(txRes.hash)
 
-  //     if (receipt === null) {
-  //       continue
-  //     }
-  //   } catch (e) {
-  //     console.log(`Receipt error:`, e)
-  //     break
-  //   }
-  // }
+      if (receipt === null) {
+        continue
+      }
+    } catch (e) {
+      console.log(`Receipt error:`, e)
+      break
+    }
+  }
 
   // Transaction was successful if status === 1
-  return TransactionState.Sent
   if (receipt) {
     return TransactionState.Sent
   } else {
@@ -130,13 +128,13 @@ async function sendTransactionViaWallet(
 }
 
 export async function sendTransaction(
-  transaction: ethers.providers.TransactionRequest
+  transaction: ethers.providers.TransactionRequest,
 ): Promise<TransactionState> {
   return sendTransactionViaWallet(transaction)
 }
 
 export async function getTokenTransferApproval(
-  token: Token
+  token: Token,
 ): Promise<TransactionState> {
   const provider = getProvider()
   const address = getWalletAddress()
@@ -149,15 +147,15 @@ export async function getTokenTransferApproval(
     const tokenContract = new ethers.Contract(
       token.address,
       ERC20_ABI,
-      provider
+      provider,
     )
-    
+
     const transaction = await tokenContract.populateTransaction.approve(
       SWAP_ROUTER_ADDRESS,
       fromReadableAmount(
         TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER,
-        token.decimals
-      ).toString()
+        token.decimals,
+      ).toString(),
     )
 
     return sendTransaction({

@@ -1,12 +1,12 @@
-import { executeTrade } from './libs/trading';
+import { executeTrade } from '@libs/trading'
 
 async function main() {
   try {
-    await executeTrade();
+    await executeTrade()
   } catch (error) {
-    console.error('Error executing swap:', error);
-    process.exit(1);
+    console.error('Error executing swap:', error)
+    process.exit(1)
   }
 }
 
-main();
+main()

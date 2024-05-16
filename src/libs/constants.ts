@@ -1,13 +1,13 @@
 import { Token } from '@uniswap/sdk-core'
 
-export const MAINNET_CHAIN_ID = 1;
+export const MAINNET_CHAIN_ID = 1
 
 export const WETH_TOKEN = new Token(
   MAINNET_CHAIN_ID,
   '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
   18,
   'WETH',
-  'Wrapped Ether'
+  'Wrapped Ether',
 )
 
 export const USDC_TOKEN = new Token(
@@ -15,7 +15,7 @@ export const USDC_TOKEN = new Token(
   '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   6,
   'USDC',
-  'USD//C'
+  'USD//C',
 )
 
 export const POOL_FACTORY_CONTRACT_ADDRESS =
@@ -40,7 +40,7 @@ export const ERC20_ABI = [
   'event Transfer(address indexed from, address indexed to, uint amount)',
 ]
 
-export const TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER = 0.0002;
+export const TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER = 0.0002
 export const MAX_FEE_PER_GAS = '10'
 export const MAX_PRIORITY_FEE_PER_GAS = '2'
 export const GAS_LIMIT = 10
