@@ -9,10 +9,10 @@ import JSBI from 'jsbi'
 import { ethers } from "ethers";
 import { mainnetProvider, getTokenTransferApproval, sendTransaction } from "@libs/providers";
 import { CurrentConfig } from "config";
-import { getPoolInfo, getWalletAddress, TransactionState } from "@libs/providers";
+import { getPoolInfo, getWalletAddress, TransactionState, getProvider } from "@libs/providers";
 import { fromReadableAmount } from "@libs/utils"
 import { getOutputQuote } from "@libs/utils";
-import { SWAP_ROUTER_ADDRESS, MAX_FEE_PER_GAS, MAX_PRIORITY_FEE_PER_GAS } from "@libs/constants";
+import { SWAP_ROUTER_ADDRESS, MAX_FEE_PER_GAS, MAX_PRIORITY_FEE_PER_GAS, GAS_LIMIT } from "@libs/constants";
 
 const createTrade = async (): Promise<Route<Token, Token>> => { 
   const poolInfo = await getPoolInfo()
@@ -37,6 +37,7 @@ const createTrade = async (): Promise<Route<Token, Token>> => {
 export const executeTrade = async () => {
   const tradeRoute = await createTrade();
   const walletAddress = getWalletAddress()
+  const provider = getProvider();
   const amountOut = await getOutputQuote(tradeRoute, mainnetProvider);
   
   const uncheckedTrade = Trade.createUncheckedTrade({
@@ -62,16 +63,18 @@ export const executeTrade = async () => {
   }
 
   const options: SwapOptions = {
-    slippageTolerance: new Percent(50, 10_000), // 50 bips, or 0.50%
-    deadline: Math.floor(Date.now() / 1000) + 60 * 20, // 20 minutes from the current Unix time
+    slippageTolerance: new Percent(50, 10_000), 
+    deadline: Math.floor(Date.now() / 1000) + 60 * 20,
     recipient: walletAddress!,
   }
 
   const methodParameters = SwapRouter.swapCallParameters([uncheckedTrade], options)
 
-  const gasLimit = ethers.BigNumber.from(100000);
-  const maxFeePerGas = ethers.utils.parseUnits('10', 'gwei');
-  const maxPriorityFeePerGas = ethers.utils.parseUnits('2', 'gwei');
+  const gasLimit = ethers.BigNumber.from(GAS_LIMIT);
+  const maxFeePerGas = ethers.utils.parseUnits(MAX_FEE_PER_GAS, 'gwei');
+  const maxPriorityFeePerGas = ethers.utils.parseUnits(MAX_PRIORITY_FEE_PER_GAS, 'gwei');
+  const nonce = await provider!.getTransactionCount(walletAddress!, 'pending');
+
 
   const tx = {
     data: methodParameters.calldata,
@@ -80,11 +83,10 @@ export const executeTrade = async () => {
     from: walletAddress,
     maxFeePerGas,
     maxPriorityFeePerGas,
-    gasLimit
+    gasLimit,
+    nonce
   } as ethers.providers.TransactionRequest
   
-  // throw new Error('')
   const res = await sendTransaction(tx)
-  console.log(res)
   return res;
 }

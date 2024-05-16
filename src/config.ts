@@ -21,27 +21,30 @@ export interface Config {
     privateKey: string
   }
   tokens: {
-    in: Token
+    in: any
     amountIn: number
     out: Token
     poolFee: number
   }
 }
 
+if (!process.env.LOCAL_RPC || !process.env.MAINNET_RPC || !process.env.WALLET_ADDRESS || !process.env.PRIVATE_KEY) {
+  throw new Error('Missing environment variables')
+}
 
 export const CurrentConfig: Config = {
   env: Environment.LOCAL,
   rpc: {
-    local: 'http://localhost:8545',
+    local: process.env.LOCAL_RPC!,
     mainnet: process.env.MAINNET_RPC!
   },
   wallet: {
-    address: '0x0B2Fbe272a7111b22f1b8Ec56CCc0F87D75ACdAE',
+    address: process.env.WALLET_ADDRESS!,
     privateKey: process.env.PRIVATE_KEY!
   },
   tokens: {
     in: WETH_TOKEN,
-    amountIn: 0.00001,
+    amountIn: 0.0020,
     out: USDC_TOKEN,
     poolFee: FeeAmount.LOWEST,
   },
