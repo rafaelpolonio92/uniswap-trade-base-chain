@@ -1,9 +1,6 @@
-# uniswap-trade-base-chain
-Working trade using Uniswap on the BASE chain
-
 # Uniswap Trading Bot
 
-This project implements a trading bot using Uniswap V3. It allows you to execute trades on the Ethereum mainnet or a local blockchain using configurable gas values.
+This project implements a trading bot using Uniswap V3 for ETH -> USDC trading.
 
 ## Environment Variables
 
@@ -23,17 +20,13 @@ To run the code, use the following command:
 
 ```bash
 npm run start:dev
+```
 
+### Instructions to modify GAS Limits
 
-### Instructions to Create the Constants File
-
-If you don’t already have a `constants.ts` file, here is a basic example of how you might structure it:
-
-```typescript
-import { ethers } from 'ethers'
-
-// Define default gas values
+In constants.ts file, change the following values:
+```
 export const GAS_LIMIT = ethers.BigNumber.from(200000)
 export const MAX_FEE_PER_GAS = ethers.utils.parseUnits('10', 'gwei')
 export const MAX_PRIORITY_FEE_PER_GAS = ethers.utils.parseUnits('2', 'gwei')
-
+```
