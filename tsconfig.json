@@ -15,7 +15,6 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "*": ["node_modules/*"],
       "@libs/*": ["src/libs/*"]
     }
   },

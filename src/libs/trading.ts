@@ -21,7 +21,7 @@ import {
 
 import { CurrentConfig } from '../config'
 
-const createTrade = async (): Promise<Route<Token, Token>> => {
+export const createTrade = async (): Promise<Route<Token, Token>> => {
   const poolInfo = await getPoolInfo()
 
   const pool = new Pool(
